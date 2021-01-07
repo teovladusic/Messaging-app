@@ -1,5 +1,6 @@
 package com.example.messagingapp
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -28,5 +29,8 @@ interface Dao {
 
     @Delete
     suspend fun deleteMessage(message: Message)
+
+    @Query("SELECT * FROM Chat")
+    suspend fun getAllChats(): LiveData<List<Chat>>
 
 }
