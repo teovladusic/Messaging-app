@@ -1,9 +1,9 @@
-package com.example.messagingapp.relations
+package com.example.messagingapp.db.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.example.messagingapp.entities.Message
-import com.example.messagingapp.entities.User
+import com.example.messagingapp.db.entities.Message
+import com.example.messagingapp.db.entities.User
 
 data class UserWithMessges(
     @Embedded val user: User,
