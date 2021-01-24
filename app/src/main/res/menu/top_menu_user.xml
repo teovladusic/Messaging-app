@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:icon="@drawable/ic_delete"
+        android:id="@+id/deleteUser"
+        android:title="Delete user from your contacts"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:icon="@drawable/ic_person_add"
+        android:id="@+id/addUser"
+        android:title="Add User To your contacts"
+        app:showAsAction="ifRoom" />
+
+</menu>

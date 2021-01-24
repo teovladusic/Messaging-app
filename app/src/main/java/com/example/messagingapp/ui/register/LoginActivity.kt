@@ -1,18 +1,17 @@
 package com.example.messagingapp.ui.register
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
 import android.view.View
 import android.view.View.INVISIBLE
+import androidx.appcompat.app.AppCompatActivity
 import com.example.messagingapp.databinding.ActivityLogInBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.*
-import java.lang.Exception
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -209,8 +208,6 @@ class LoginActivity : AppCompatActivity() {
                             Snackbar.LENGTH_SHORT
                         ).show()
                     }
-
-
                 }
             }
     }
