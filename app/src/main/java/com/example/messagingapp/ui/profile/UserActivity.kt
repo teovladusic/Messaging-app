@@ -2,11 +2,8 @@ package com.example.messagingapp.ui.profile
 
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.messagingapp.R
 import com.example.messagingapp.databinding.ActivityUserBinding
 import com.example.messagingapp.db.room.entities.User
 import com.example.messagingapp.ui.chat.ChatViewModel
@@ -42,12 +39,16 @@ class UserActivity : AppCompatActivity() {
 
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         currentUserId = sharedPreferences.getString("currentUserID", "")!!
+
+        binding.imgViewAddPerson.setOnClickListener {
+            addUser()
+        }
+
+        binding.imgViewDeletePerson.setOnClickListener {
+            removeUser()
+        }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.top_menu_user, menu)
-        return true
-    }
 
     private fun addUser() {
         if (currentUserId == user.userID) {
@@ -90,23 +91,6 @@ class UserActivity : AppCompatActivity() {
             }
 
 
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        return when (item.itemId) {
-            R.id.addUser -> {
-                addUser()
-                true
-            }
-
-            R.id.deleteUser -> {
-                removeUser()
-                true
-            }
-
-            else -> super.onOptionsItemSelected(item)
         }
     }
 }
