@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
 
+
     val CREATE_CHAT_CODE = 2
     lateinit var binding: ActivityChatBinding
     private val TAG = "ChatActivity"

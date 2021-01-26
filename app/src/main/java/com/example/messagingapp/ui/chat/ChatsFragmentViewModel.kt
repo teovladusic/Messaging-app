@@ -20,6 +20,12 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
 
     val chatsCollectionRef = FirebaseFirestore.getInstance().collection("chats")
 
+    val chats = repository.getAllChats().asLiveData()
+
+    val lastMessages = repository.getLastMessages().asLiveData()
+
+    val allChatIDs = repository.getAllChatIDs().asLiveData()
+
     fun searchDBForChats(searchQuery: String) =
         repository.searchDBForChats(searchQuery).asLiveData()
 
@@ -27,46 +33,55 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
 
     fun getAllChatsIDs() = repository.getAllChatIDs()
 
-    suspend fun insertMessage(message: Message) = repository.insertMessage(message)
+    fun insertMessage(message: Message) = viewModelScope.launch {
+        repository.insertMessage(message)
+    }
 
-    suspend fun subscribeToChatUpdates(userID: String) {
-        chatsCollectionRef.whereArrayContains("userIDs", userID)
-            .addSnapshotListener { value, error ->
-                error?.let {
-                    Log.d(TAG, "${error.message}")
-                    return@addSnapshotListener
-                }
+    fun subscribeToChatUpdates(userID: String) {
+        viewModelScope.launch {
+            chatsCollectionRef.whereArrayContains("userIDs", userID)
+                .addSnapshotListener { value, error ->
+                    error?.let {
+                        Log.d(TAG, "${error.message}")
+                        return@addSnapshotListener
+                    }
 
-                value?.let {
-                    for (document in it) {
+                    value?.let {
+                        for (document in it) {
 
-                        val firebaseChat = document.toObject(FirebaseChat::class.java)
-                        if (firebaseChat.chatID != "chatID") {
-                            val chat =
-                                Chat(
-                                    firebaseChat.chatID,
-                                    firebaseChat.name,
-                                    firebaseChat.lastMessageID
-                                )
-                            viewModelScope.launch {
-                                insertChat(chat)
+                            val firebaseChat = document.toObject(FirebaseChat::class.java)
+                            if (firebaseChat.chatID != "chatID") {
+                                val chat =
+                                    Chat(
+                                        firebaseChat.chatID,
+                                        firebaseChat.name,
+                                        firebaseChat.lastMessageID
+                                    )
+                                viewModelScope.launch {
+                                    insertChat(chat)
+                                }
                             }
                         }
                     }
                 }
-            }
-    }
-
-    suspend fun insertChat(chat: Chat) = repository.insertChat(chat)
-
-    suspend fun subsribeToMessageUpdates(allChatIDs: List<String>) {
-        Log.d(TAG, "$allChatIDs")
-        for (chatID in allChatIDs) {
-            getMessageUpdates(chatID)
         }
     }
 
-    suspend fun getMessageUpdates(chatID: String) {
+    fun insertChat(chat: Chat) = viewModelScope.launch {
+        repository.insertChat(chat)
+    }
+
+    fun subsribeToMessageUpdates(allChatIDs: List<String>) {
+        viewModelScope.launch {
+            for (chatID in allChatIDs) {
+                getMessageUpdates(chatID)
+            }
+        }
+
+
+    }
+
+    fun getMessageUpdates(chatID: String) {
         chatsCollectionRef.document(chatID).collection("messages")
             .addSnapshotListener { value, error ->
                 error?.let {
@@ -77,16 +92,28 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
                 value?.let {
                     for (document in value.documents) {
                         val message = document.toObject(Message::class.java)!!
-                        viewModelScope.launch {
-                            insertMessage(message)
+                        if (message.messageid != "messageID") {
+                            viewModelScope.launch {
+                                insertMessage(message)
+                                Log.d(TAG, "inserted: $message")
+                            }
                         }
-
                     }
                 }
             }
     }
 
+    fun updateChatLastMessage(messageID: String, chatID: String) = viewModelScope.launch {
+        repository.updateChatLastMessage(messageID, chatID)
+
+    }
+
+
     suspend fun getMessageByID(messageID: String) = repository.getMessageByID(messageID)
 
+    fun getAllMessages() = repository.getAllMessages()
 
+    suspend fun updateChat(chat: Chat) = repository.updateChat(chat)
+
+    suspend fun getChatByID(chatID: String) = repository.getChatByID(chatID)
 }

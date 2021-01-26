@@ -90,7 +90,6 @@ class UserActivity : AppCompatActivity() {
                 ).show()
             }
 
-
         }
     }
 }

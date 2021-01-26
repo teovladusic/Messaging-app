@@ -17,7 +17,7 @@ interface ChatDao {
     suspend fun insertChat(chat: Chat)
 
     @Query("SELECT c.* FROM Chat AS c JOIN Message AS m ON c.lastMessageID = m.messageid ORDER BY m.dateTime DESC")
-    fun getAllChats(): LiveData<List<Chat>>
+    fun getAllChats(): Flow<List<Chat>>
 
     @Query("SELECT * FROM User WHERE User.userID = :userID")
     suspend fun getUserByID(userID: String): User
@@ -50,15 +50,31 @@ interface ChatDao {
     suspend fun deleteAllChats()
 
     @Query("SELECT chatID FROM Chat")
-    fun getAllChatIDs(): LiveData<List<String>>
-
-    @Query("UPDATE Chat SET lastMessageID = :lastMessageID WHERE chatID = :chatID")
-    suspend fun updateLastMessage(lastMessageID: String, chatID: String)
+    fun getAllChatIDs(): Flow<List<String>>
 
     @Query("SELECT * FROM Message WHERE messageid = :messageID")
     suspend fun getMessageByID(messageID: String): Message
 
     @Query("SELECT c.* FROM Chat AS C JOIN Message AS m ON c.lastMessageID = m.messageid WHERE name LIKE :searchQuery ORDER BY m.dateTime DESC")
     fun searchDBForChats(searchQuery: String): Flow<List<Chat>>
+
+    @Query("SELECT * FROM Message WHERE chatID = :chatID ORDER BY dateTime")
+    fun getAllMessagesOfChat(chatID: String): LiveData<List<Message>>
+
+    @Query("UPDATE Chat SET lastMessageID = :messageID WHERE chatID = :chatID")
+    suspend fun updateChatLastMessage(messageID: String, chatID: String)
+
+    @Query("SELECT * FROM Message ORDER BY dateTime")
+    fun getAllMessages(): LiveData<List<Message>>
+
+    @Update(entity = Chat::class)
+    suspend fun updateChat(chat: Chat)
+
+    @Query("SELECT * FROM CHAT WHERE chatID = :chatID")
+    suspend fun getChatByID(chatID: String): Chat
+
+    @Query("SELECT * FROM Message AS m JOIN Chat AS c ON m.messageid = c.lastMessageID ORDER BY m.dateTime")
+    fun getLastMessages(): Flow<List<Message>>
+
 
 }

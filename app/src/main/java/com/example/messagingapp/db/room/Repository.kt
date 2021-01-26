@@ -41,14 +41,25 @@ class Repository @Inject constructor(
 
     suspend fun deleteAllChats() = db.getDao().deleteAllChats()
 
-    fun getAllChatIDs(): LiveData<List<String>> = db.getDao().getAllChatIDs()
-
-    suspend fun updateLastMessage(lastMessageID: String, chatID: String) =
-        db.getDao().updateLastMessage(lastMessageID, chatID)
+    fun getAllChatIDs() = db.getDao().getAllChatIDs()
 
     suspend fun getMessageByID(messageID: String): Message = db.getDao().getMessageByID(messageID)
 
     fun searchDBForChats(searchQuery: String): Flow<List<Chat>> =
         db.getDao().searchDBForChats(searchQuery)
+
+    fun getAllMessagesOfChat(chatID: String): LiveData<List<Message>> =
+        db.getDao().getAllMessagesOfChat(chatID)
+
+    suspend fun updateChatLastMessage(messageID: String, chatID: String) =
+        db.getDao().updateChatLastMessage(messageID, chatID)
+
+    fun getAllMessages(): LiveData<List<Message>> = db.getDao().getAllMessages()
+
+    suspend fun updateChat(chat: Chat) = db.getDao().updateChat(chat)
+
+    suspend fun getChatByID(chatID: String): Chat = db.getDao().getChatByID(chatID)
+
+    fun getLastMessages(): Flow<List<Message>> = db.getDao().getLastMessages()
 
 }

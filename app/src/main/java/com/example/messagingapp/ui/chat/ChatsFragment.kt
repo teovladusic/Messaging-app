@@ -1,6 +1,7 @@
 package com.example.messagingapp.ui.chat
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.SearchView
@@ -11,6 +12,7 @@ import com.example.messagingapp.R
 import com.example.messagingapp.databinding.FragmentChatsBinding
 import com.example.messagingapp.db.room.entities.Chat
 import com.example.messagingapp.db.room.entities.Message
+import com.example.messagingapp.ui.messaging.MessagingActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,11 +28,11 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
     private val binding get() = _binding!!
 
     var chats = mutableListOf<Chat>()
+    var lastMessages = mutableListOf<Message>()
 
     private val chatsFragmentViewModel: ChatsFragmentViewModel by viewModels()
 
-
-    private val adapter = ChatItemAdapter(this)
+    lateinit var chatItemAdapter: ChatItemAdapter
 
     private val TAG = "ChatsFragment"
 
@@ -39,30 +41,30 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
         _binding = FragmentChatsBinding.bind(view)
 
 
+        chatItemAdapter = ChatItemAdapter(this, chatsFragmentViewModel)
 
-        binding.recViewChats.adapter = adapter
-        binding.recViewChats.layoutManager = LinearLayoutManager(requireContext())
-
-        chatsFragmentViewModel.getAllChats().observe(viewLifecycleOwner, {
-            CoroutineScope(Dispatchers.IO).launch {
-                val lastMessages = setLastMessages(it)
-                chats = it as MutableList<Chat>
-
-                withContext(Dispatchers.Main) {
-                    adapter.chats = it
-                    adapter.lastMessages = lastMessages
-                    adapter.notifyDataSetChanged()
-                }
+        binding.apply {
+            recViewChats.apply {
+                adapter = chatItemAdapter
+                layoutManager = LinearLayoutManager(requireContext())
+                setHasFixedSize(true)
             }
+        }
 
+        chatsFragmentViewModel.chats.observe(viewLifecycleOwner) {
+            chats = it as MutableList<Chat>
+            chatItemAdapter.submitList(it)
+            chatItemAdapter.notifyDataSetChanged()
+        }
 
-        })
+        chatsFragmentViewModel.lastMessages.observe(viewLifecycleOwner) {
+            chatItemAdapter.lastMessages = it as MutableList<Message>
+            lastMessages = it
+        }
 
-        chatsFragmentViewModel.getAllChatsIDs().observe(viewLifecycleOwner, {
-            CoroutineScope(Dispatchers.IO).launch {
-                chatsFragmentViewModel.subsribeToMessageUpdates(it)
-            }
-        })
+        chatsFragmentViewModel.allChatIDs.observe(viewLifecycleOwner) {
+            chatsFragmentViewModel.subsribeToMessageUpdates(it)
+        }
 
         subscribeToChatUpdates()
 
@@ -75,23 +77,16 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
             requireContext().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
                 .getString("currentUserID", "").toString()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            chatsFragmentViewModel.subscribeToChatUpdates(currentUserID)
-        }
-    }
 
-    suspend fun setLastMessages(chats: List<Chat>): MutableList<Message> {
-        val lastMessages = mutableListOf<Message>()
-        CoroutineScope(Dispatchers.IO).launch {
-            for (chat in chats) {
-                lastMessages.add(chatsFragmentViewModel.getMessageByID(chat.lastMessageID))
-            }
-        }.join()
-        return lastMessages
+        chatsFragmentViewModel.subscribeToChatUpdates(currentUserID)
+
     }
 
     override fun onItemClick(position: Int) {
         val chat = chats[position]
+        val intent = Intent(requireContext(), MessagingActivity::class.java)
+        intent.putExtra("chat", chat)
+        startActivity(intent)
     }
 
     override fun onDestroyView() {
@@ -106,18 +101,18 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
     private fun searchDBForChats(query: String) {
         val searchQuery = "%$query%"
 
-        chatsFragmentViewModel.searchDBForChats(searchQuery).observe(viewLifecycleOwner, {
+        chatsFragmentViewModel.searchDBForChats(searchQuery).observe(viewLifecycleOwner) {
             CoroutineScope(Dispatchers.IO).launch {
-                val lastMessages = setLastMessages(it)
                 chats = it as MutableList<Chat>
                 withContext(Dispatchers.Main) {
-                    adapter.chats = it
-                    adapter.lastMessages = lastMessages
-                    adapter.notifyDataSetChanged()
+                    chatItemAdapter.submitList(it)
+                    chatItemAdapter.lastMessages = lastMessages
+                    chatItemAdapter.notifyDataSetChanged()
                 }
             }
-        })
+        }
     }
+
 
     override fun onQueryTextChange(newText: String?): Boolean {
         newText?.let {
@@ -125,4 +120,6 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
         }
         return true
     }
+
+
 }

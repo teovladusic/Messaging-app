@@ -2,12 +2,9 @@ package com.example.messagingapp.ui.addChat
 
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.messagingapp.R
 import com.example.messagingapp.databinding.ActivityAddChatBinding
 import com.example.messagingapp.db.room.entities.User
 import com.google.android.material.snackbar.Snackbar
@@ -53,6 +50,14 @@ class AddChatActivity : AppCompatActivity(), AddChatContactsAdapter.OnItemClickL
             ""
         )!!
 
+        binding.ImgViewBack.setOnClickListener {
+            setResult(RESULT_CANCELED)
+            finish()
+        }
+
+        binding.ImgViewCheck.setOnClickListener {
+            createChat()
+        }
     }
 
     override fun onItemClick(position: Int, isChecked: Boolean) {
@@ -96,26 +101,5 @@ class AddChatActivity : AppCompatActivity(), AddChatContactsAdapter.OnItemClickL
 
 
     }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.top_menu_addchat, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        when (item.itemId) {
-            R.id.check -> createChat()
-
-            android.R.id.home -> {
-                setResult(RESULT_CANCELED)
-                finish()
-            }
-
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
 
 }

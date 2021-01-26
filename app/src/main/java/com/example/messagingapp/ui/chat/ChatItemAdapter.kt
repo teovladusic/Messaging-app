@@ -3,6 +3,8 @@ package com.example.messagingapp.ui.chat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messagingapp.databinding.ChatItemBinding
 import com.example.messagingapp.db.room.entities.Chat
@@ -12,12 +14,12 @@ import java.time.format.DateTimeFormatter
 
 class ChatItemAdapter(
     private val listener: OnItemClickListener,
-) : RecyclerView.Adapter<ChatItemAdapter.ChatItemHolder>() {
+    private val chatsFragmentViewModel: ChatsFragmentViewModel
+) : ListAdapter<Chat, ChatItemAdapter.ChatItemHolder>(DiffCallback()) {
 
 
     private val TAG = "ChatItemAdapter"
 
-    var chats = mutableListOf<Chat>()
     var lastMessages = mutableListOf<Message>()
 
 
@@ -26,18 +28,13 @@ class ChatItemAdapter(
         return ChatItemHolder(binding)
     }
 
-    override fun getItemCount() = chats.size
-
     override fun onBindViewHolder(holder: ChatItemHolder, position: Int) {
-        val chat = chats[position]
+        val currentChat = getItem(position)
         for (message in lastMessages) {
-            if (message.messageid == chat.lastMessageID) {
-                holder.binding.tvName.text = chat.name
-                holder.binding.tvLastMessage.text = message.text
-                holder.binding.tvTime.text = formatTime(message.dateTime)
+            if (currentChat.lastMessageID == message.messageid) {
+                holder.bind(currentChat, message)
             }
         }
-
 
     }
 
@@ -53,8 +50,18 @@ class ChatItemAdapter(
         }
     }
 
-    inner class ChatItemHolder(val binding: ChatItemBinding) :
+    inner class ChatItemHolder(private val binding: ChatItemBinding) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+
+        fun bind(chat: Chat, message: Message) {
+            binding.apply {
+                tvName.text = chat.name
+                tvLastMessage.text = message.text
+                tvTime.text = formatTime(message.dateTime)
+
+            }
+        }
+
         init {
             binding.root.setOnClickListener(this)
         }
@@ -66,6 +73,14 @@ class ChatItemAdapter(
 
     interface OnItemClickListener {
         fun onItemClick(position: Int)
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<Chat>() {
+        override fun areItemsTheSame(oldItem: Chat, newItem: Chat) =
+            oldItem.chatID == newItem.chatID
+
+        override fun areContentsTheSame(oldItem: Chat, newItem: Chat) =
+            oldItem == newItem
     }
 
 }

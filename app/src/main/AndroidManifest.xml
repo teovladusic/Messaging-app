@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MessagingApp">
-        <activity android:name=".ui.profile.UserActivity"></activity>
+        <activity android:name=".ui.messaging.MessagingActivity"></activity>
+        <activity android:name=".ui.profile.UserActivity" />
         <activity android:name=".ui.addChat.AddChatActivity" />
         <activity android:name=".ui.register.CreateAccActivity" />
         <activity android:name=".ui.register.LoginActivity" />
@@ -26,17 +27,14 @@
         </activity>
 
         <service
-            android:name="com.example.messagingapp.db.firebase.sendmessages.FirebaseService"
-            android:permission="com.google.android.c2dm.permission.SEND"
-            android:exported="false">
-
+            android:name=".db.firebase.sendmessages.FirebaseService"
+            android:exported="false"
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-
     </application>
-
 
 </manifest>
