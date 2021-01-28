@@ -39,7 +39,6 @@ class ChatActivity : AppCompatActivity() {
             val intent = Intent(this, AddChatActivity::class.java)
             startActivityForResult(intent, CREATE_CHAT_CODE)
         }
-
     }
 
     override fun onResume() {

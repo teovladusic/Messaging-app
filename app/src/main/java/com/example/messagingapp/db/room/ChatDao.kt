@@ -46,9 +46,6 @@ interface ChatDao {
     @Query("SELECT token FROM User WHERE userID = :userID")
     suspend fun getCurrentUserToken(userID: String): String
 
-    @Query("DELETE FROM Chat")
-    suspend fun deleteAllChats()
-
     @Query("SELECT chatID FROM Chat")
     fun getAllChatIDs(): Flow<List<String>>
 
@@ -59,7 +56,7 @@ interface ChatDao {
     fun searchDBForChats(searchQuery: String): Flow<List<Chat>>
 
     @Query("SELECT * FROM Message WHERE chatID = :chatID ORDER BY dateTime")
-    fun getAllMessagesOfChat(chatID: String): LiveData<List<Message>>
+    fun getAllMessagesOfChat(chatID: String): Flow<List<Message>>
 
     @Query("UPDATE Chat SET lastMessageID = :messageID WHERE chatID = :chatID")
     suspend fun updateChatLastMessage(messageID: String, chatID: String)

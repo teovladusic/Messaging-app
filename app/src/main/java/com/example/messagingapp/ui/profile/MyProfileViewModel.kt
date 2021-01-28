@@ -10,5 +10,4 @@ class MyProfileViewModel @ViewModelInject constructor(
 
     suspend fun getUserByID(userID: String) = repository.getUserByID(userID)
 
-
 }

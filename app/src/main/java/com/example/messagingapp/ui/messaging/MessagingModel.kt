@@ -3,6 +3,7 @@ package com.example.messagingapp.ui.messaging
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import com.example.messagingapp.db.firebase.FirebaseRepository
 import com.example.messagingapp.db.firebase.sendmessages.NotificationData
 import com.example.messagingapp.db.firebase.sendmessages.PushNotification
@@ -26,7 +27,7 @@ class MessagingModel @ViewModelInject constructor(
 
     private val firebaseRepository = FirebaseRepository()
 
-    fun getAllMessagesOfChat(chatID: String) = repository.getAllMessagesOfChat(chatID)
+    fun getAllMessagesOfChat(chatID: String) = repository.getAllMessagesOfChat(chatID).asLiveData()
 
     suspend fun getFirebaseChat(chatID: String) = firebaseRepository.getFirebaseChat(chatID)
 
@@ -48,7 +49,7 @@ class MessagingModel @ViewModelInject constructor(
         message: Message,
         currentUserID: String
     ) {
-        val notificationData = NotificationData("title", message.text)
+        val notificationData = NotificationData("title", "message")
 
         CoroutineScope(Dispatchers.IO).launch {
             for (user in usersToCreateChatWith) {
@@ -62,13 +63,16 @@ class MessagingModel @ViewModelInject constructor(
             }
         }.join()
 
+        firebaseRepository.chatsCollectionReference.document(message.chatID)
+            .update("lastMessageID", message.messageid).await()
+
     }
 
     fun sendNotification(notification: PushNotification) = CoroutineScope(Dispatchers.IO).launch {
         try {
             val response = RetrofitInstance.api.postMessage(notification)
             if (response.isSuccessful) {
-
+                Log.d(TAG, "$notification")
             } else {
                 Log.d(TAG, response.errorBody().toString())
             }

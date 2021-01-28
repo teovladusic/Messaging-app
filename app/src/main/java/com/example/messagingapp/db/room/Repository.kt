@@ -16,7 +16,7 @@ class Repository @Inject constructor(
 
     fun getAllChats() = db.getDao().getAllChats()
 
-    suspend fun getUserByID(userID: String): User = db.getDao().getUserByID(userID)
+    suspend fun getUserByID(userID: String) = db.getDao().getUserByID(userID)
 
     suspend fun insertMessage(message: Message) = db.getDao().insertMessage(message)
 
@@ -39,8 +39,6 @@ class Repository @Inject constructor(
     suspend fun getCurrentUserToken(userID: String): String =
         db.getDao().getCurrentUserToken(userID)
 
-    suspend fun deleteAllChats() = db.getDao().deleteAllChats()
-
     fun getAllChatIDs() = db.getDao().getAllChatIDs()
 
     suspend fun getMessageByID(messageID: String): Message = db.getDao().getMessageByID(messageID)
@@ -48,7 +46,7 @@ class Repository @Inject constructor(
     fun searchDBForChats(searchQuery: String): Flow<List<Chat>> =
         db.getDao().searchDBForChats(searchQuery)
 
-    fun getAllMessagesOfChat(chatID: String): LiveData<List<Message>> =
+    fun getAllMessagesOfChat(chatID: String) =
         db.getDao().getAllMessagesOfChat(chatID)
 
     suspend fun updateChatLastMessage(messageID: String, chatID: String) =

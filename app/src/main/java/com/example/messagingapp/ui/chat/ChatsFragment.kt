@@ -3,6 +3,7 @@ package com.example.messagingapp.ui.chat
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -108,6 +109,7 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
                     chatItemAdapter.submitList(it)
                     chatItemAdapter.lastMessages = lastMessages
                     chatItemAdapter.notifyDataSetChanged()
+                    Log.d(TAG, "aaaaaaa")
                 }
             }
         }

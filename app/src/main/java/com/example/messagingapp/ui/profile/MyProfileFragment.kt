@@ -7,11 +7,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.messagingapp.R
 import com.example.messagingapp.databinding.FragmentMyProfileBinding
+import com.example.messagingapp.db.room.entities.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MyProfileFragment : Fragment(R.layout.fragment_my_profile) {
@@ -28,19 +28,19 @@ class MyProfileFragment : Fragment(R.layout.fragment_my_profile) {
         val sharedPreferences =
             requireContext().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)!!
         val currentUserID = sharedPreferences.getString("currentUserID", "").toString()
-        val phoneNum = sharedPreferences.getString("phoneNum", "").toString()
-
         CoroutineScope(Dispatchers.IO).launch {
             val user = myProfileViewModel.getUserByID(currentUserID)
-            withContext(Dispatchers.Main) {
-                binding.tvNumber.text = phoneNum
-                binding.tvName.text = user.name
-                binding.tvLastName.text = user.lastName
-                binding.tvNick.text = user.nickname
-                binding.tvNickname.text = user.nickname
-            }
+            updateUI(user)
         }
 
+    }
+
+    fun updateUI(user: User) {
+        binding.tvNumber.text = user.number
+        binding.tvName.text = user.name
+        binding.tvLastName.text = user.lastName
+        binding.tvNick.text = user.nickname
+        binding.tvNickname.text = user.nickname
     }
 
     override fun onDestroyView() {

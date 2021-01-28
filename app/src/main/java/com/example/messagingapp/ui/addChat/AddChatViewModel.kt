@@ -38,6 +38,7 @@ class AddChatViewModel @ViewModelInject constructor(
 
     suspend fun getUserByID(userID: String) = repository.getUserByID(userID)
 
+
     suspend fun pushMessageToFirestore(message: Message): Message {
         CoroutineScope(Dispatchers.Default).launch {
             chatsCollectionRef.document(message.chatID).collection("messages").add(message).await()

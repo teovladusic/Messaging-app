@@ -29,10 +29,6 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
     fun searchDBForChats(searchQuery: String) =
         repository.searchDBForChats(searchQuery).asLiveData()
 
-    fun getAllChats() = repository.getAllChats()
-
-    fun getAllChatsIDs() = repository.getAllChatIDs()
-
     fun insertMessage(message: Message) = viewModelScope.launch {
         repository.insertMessage(message)
     }
@@ -57,9 +53,8 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
                                         firebaseChat.name,
                                         firebaseChat.lastMessageID
                                     )
-                                viewModelScope.launch {
-                                    insertChat(chat)
-                                }
+                                insertChat(chat)
+
                             }
                         }
                     }
@@ -77,11 +72,9 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
                 getMessageUpdates(chatID)
             }
         }
-
-
     }
 
-    fun getMessageUpdates(chatID: String) {
+    suspend fun getMessageUpdates(chatID: String) {
         chatsCollectionRef.document(chatID).collection("messages")
             .addSnapshotListener { value, error ->
                 error?.let {
@@ -93,10 +86,7 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
                     for (document in value.documents) {
                         val message = document.toObject(Message::class.java)!!
                         if (message.messageid != "messageID") {
-                            viewModelScope.launch {
-                                insertMessage(message)
-                                Log.d(TAG, "inserted: $message")
-                            }
+                            insertMessage(message)
                         }
                     }
                 }
@@ -105,7 +95,6 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
 
     fun updateChatLastMessage(messageID: String, chatID: String) = viewModelScope.launch {
         repository.updateChatLastMessage(messageID, chatID)
-
     }
 
 
