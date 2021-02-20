@@ -1,39 +1,34 @@
 package com.example.messagingapp.ui.chat
 
-import android.content.Context
-import android.content.Intent
+import android.Manifest
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.messagingapp.R
+import com.example.messagingapp.data.room.entities.Chat
 import com.example.messagingapp.databinding.FragmentChatsBinding
-import com.example.messagingapp.db.room.entities.Chat
-import com.example.messagingapp.db.room.entities.Message
-import com.example.messagingapp.ui.messaging.MessagingActivity
+import com.example.messagingapp.util.exhaustive
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 @AndroidEntryPoint
-class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemClickListener,
+class ChatsFragment : Fragment(R.layout.fragment_chats), ChatsAdapter.OnItemClickListener,
     SearchView.OnQueryTextListener {
 
     private var _binding: FragmentChatsBinding? = null
     private val binding get() = _binding!!
 
-    var chats = mutableListOf<Chat>()
-    var lastMessages = mutableListOf<Message>()
-
-    private val chatsFragmentViewModel: ChatsFragmentViewModel by viewModels()
-
-    lateinit var chatItemAdapter: ChatItemAdapter
+    private val viewModel: ChatsFragmentViewModel by viewModels()
 
     private val TAG = "ChatsFragment"
 
@@ -41,53 +36,79 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentChatsBinding.bind(view)
 
+        val permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            permissions.toTypedArray(),
+            78432
+        )
 
-        chatItemAdapter = ChatItemAdapter(this, chatsFragmentViewModel)
-
-        binding.apply {
-            recViewChats.apply {
-                adapter = chatItemAdapter
-                layoutManager = LinearLayoutManager(requireContext())
-                setHasFixedSize(true)
+        viewModel.isLoggedIn.observe(viewLifecycleOwner) {
+            when (it) {
+                true -> viewModel.onLoggedIn()
+                else -> viewModel.onNotLoggedIn()
             }
         }
 
-        chatsFragmentViewModel.chats.observe(viewLifecycleOwner) {
-            chats = it as MutableList<Chat>
-            chatItemAdapter.submitList(it)
-            chatItemAdapter.notifyDataSetChanged()
+        val chatsAdapter = ChatsAdapter(this)
+
+        viewModel.chats.observe(viewLifecycleOwner) {
+            lifecycleScope.launch {
+                val chatsWithLastMessages = viewModel.getChatsWithLastMessages(it)
+                withContext(Dispatchers.Main) {
+                    chatsAdapter.submitList(chatsWithLastMessages)
+                }
+            }
         }
 
-        chatsFragmentViewModel.lastMessages.observe(viewLifecycleOwner) {
-            chatItemAdapter.lastMessages = it as MutableList<Message>
-            lastMessages = it
+        binding.apply {
+            recViewChats.apply {
+                adapter = chatsAdapter
+                layoutManager = LinearLayoutManager(requireContext())
+            }
+            searchChats.setOnQueryTextListener(this@ChatsFragment)
+
+            btnAddChat.setOnClickListener {
+                viewModel.onAddChatClicked()
+            }
+
+            searchChats.setOnSearchClickListener {
+                tvTitleChats.visibility = View.INVISIBLE
+            }
+            searchChats.setOnCloseListener {
+                tvTitleChats.visibility = View.VISIBLE
+                false
+            }
         }
 
-        chatsFragmentViewModel.allChatIDs.observe(viewLifecycleOwner) {
-            chatsFragmentViewModel.subsribeToMessageUpdates(it)
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.chatsEvent.collect { event ->
+                when (event) {
+                    is ChatsFragmentViewModel.ChatsEvent.NavigateToMessagingScreen -> {
+                        val action =
+                            ChatsFragmentDirections.actionChatsFragmentToMessagingFragment(event.chat)
+                        findNavController().navigate(action)
+                    }
+                    ChatsFragmentViewModel.ChatsEvent.LoggedIn -> Log.d(TAG, "logged in")
+                    ChatsFragmentViewModel.ChatsEvent.NotLoggedIn -> {
+                        val action =
+                            ChatsFragmentDirections.actionChatsFragmentToVerifyNumberFragment()
+                        findNavController().navigate(action)
+                    }
+                    ChatsFragmentViewModel.ChatsEvent.NavigateToAddChatFragment -> {
+                        val action =
+                            ChatsFragmentDirections.actionChatsFragmentToAddChatFragment()
+                        findNavController().navigate(action)
+                    }
+                }.exhaustive
+            }
         }
 
-        subscribeToChatUpdates()
-
-        binding.searchChats.setOnQueryTextListener(this)
     }
 
-
-    fun subscribeToChatUpdates() {
-        val currentUserID =
-            requireContext().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-                .getString("currentUserID", "").toString()
-
-
-        chatsFragmentViewModel.subscribeToChatUpdates(currentUserID)
-
-    }
-
-    override fun onItemClick(position: Int) {
-        val chat = chats[position]
-        val intent = Intent(requireContext(), MessagingActivity::class.java)
-        intent.putExtra("chat", chat)
-        startActivity(intent)
+    override fun onItemClick(chat: Chat) {
+        viewModel.onChatClicked(chat)
     }
 
     override fun onDestroyView() {
@@ -95,30 +116,11 @@ class ChatsFragment : Fragment(R.layout.fragment_chats), ChatItemAdapter.OnItemC
         _binding = null
     }
 
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        return true
-    }
-
-    private fun searchDBForChats(query: String) {
-        val searchQuery = "%$query%"
-
-        chatsFragmentViewModel.searchDBForChats(searchQuery).observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
-                chats = it as MutableList<Chat>
-                withContext(Dispatchers.Main) {
-                    chatItemAdapter.submitList(it)
-                    chatItemAdapter.lastMessages = lastMessages
-                    chatItemAdapter.notifyDataSetChanged()
-                    Log.d(TAG, "aaaaaaa")
-                }
-            }
-        }
-    }
-
+    override fun onQueryTextSubmit(query: String?) = true
 
     override fun onQueryTextChange(newText: String?): Boolean {
         newText?.let {
-            searchDBForChats(it)
+            viewModel.searchQuery.value = it
         }
         return true
     }

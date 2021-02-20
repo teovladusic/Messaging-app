@@ -17,9 +17,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
+            android:paddingBottom="10dp"
             android:text="time"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tvLastMessage"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
@@ -27,30 +28,44 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
+            android:paddingBottom="10dp"
             android:text="Last message"
             android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@+id/tvName"
-            app:layout_constraintTop_toBottomOf="@+id/tvName" />
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name" />
 
         <TextView
-            android:id="@+id/tvName"
+            android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="35dp"
             android:text="Name"
             android:textSize="17sp"
-            app:layout_constraintStart_toEndOf="@+id/imgViewProfilePic"
-            app:layout_constraintTop_toTopOf="@+id/imgViewProfilePic" />
+            app:layout_constraintStart_toEndOf="@+id/card_view"
+            app:layout_constraintTop_toTopOf="@+id/card_view" />
 
-        <ImageView
-            android:id="@+id/imgViewProfilePic"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_view"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_marginStart="15dp"
-            android:layout_marginTop="15dp"
+            android:background="@color/grey"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="250dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/imgViewProfilePic"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_user" />
+
+        </androidx.cardview.widget.CardView>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

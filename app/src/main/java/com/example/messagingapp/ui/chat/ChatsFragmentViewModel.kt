@@ -2,49 +2,98 @@ package com.example.messagingapp.ui.chat
 
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
-import com.example.messagingapp.db.firebase.FirebaseChat
-import com.example.messagingapp.db.room.Repository
-import com.example.messagingapp.db.room.entities.Chat
-import com.example.messagingapp.db.room.entities.Message
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.lifecycle.*
+import com.example.messagingapp.data.PreferencesManager
+import com.example.messagingapp.data.firebase.FirebaseChat
+import com.example.messagingapp.data.firebase.FirebaseRepository
+import com.example.messagingapp.data.room.Repository
+import com.example.messagingapp.data.room.entities.Chat
+import com.example.messagingapp.data.room.entities.Message
+import com.example.messagingapp.ui.ChatViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ChatsFragmentViewModel @ViewModelInject constructor(
-    val repository: Repository
+    private val repository: Repository,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
+    private val firebaseRepository = FirebaseRepository()
     private val TAG = "ChatsFragmentViewModel"
 
-    val chatsCollectionRef = FirebaseFirestore.getInstance().collection("chats")
+    //chats
+    val searchQuery = MutableStateFlow("")
+    private val chatsFlow = searchQuery.flatMapLatest {
+        repository.searchDBForChats(it)
+    }
+    val chats = chatsFlow.asLiveData()
 
-    val chats = repository.getAllChats().asLiveData()
+    //events
+    private val chatsEventChannel = Channel<ChatsEvent>()
+    val chatsEvent = chatsEventChannel.receiveAsFlow()
 
-    val lastMessages = repository.getLastMessages().asLiveData()
+    //preferences
+    private val preferencesFlow = preferencesManager.preferencesFlow
 
-    val allChatIDs = repository.getAllChatIDs().asLiveData()
-
-    fun searchDBForChats(searchQuery: String) =
-        repository.searchDBForChats(searchQuery).asLiveData()
-
-    fun insertMessage(message: Message) = viewModelScope.launch {
-        repository.insertMessage(message)
+    //is user logged in
+    private val isLoggedInFlow = preferencesFlow.flatMapLatest {
+        subscribeToChatUpdates(it.currentUserID)
+        if (it.phoneNum == "no_phoneNum" || it.currentUserID == "no_user" || it.token == "no_token") {
+            flowOf(false)
+        }else{
+            flowOf(true)
+        }
     }
 
-    fun subscribeToChatUpdates(userID: String) {
+    val isLoggedIn = isLoggedInFlow.asLiveData()
+
+    fun onLoggedIn() = viewModelScope.launch {
+        chatsEventChannel.send(ChatsEvent.LoggedIn)
+    }
+
+    fun onNotLoggedIn() = viewModelScope.launch{
+        chatsEventChannel.send(ChatsEvent.NotLoggedIn)
+    }
+
+
+    //when chat changes get last messages and return list of chatWithLastMessages objects
+    suspend fun getChatsWithLastMessages(chats: List<Chat>) : List<ChatWithLastMessage> {
+        val chatsWithLastMessages = mutableListOf<ChatWithLastMessage>()
+        viewModelScope.launch(Dispatchers.IO) {
+            for (chat in chats) {
+                val message = getMessageByID(chat.lastMessageID)
+                chatsWithLastMessages.add(ChatWithLastMessage(message, chat))
+            }
+        }.join()
+        return chatsWithLastMessages
+    }
+
+    fun onAddChatClicked() = viewModelScope.launch {
+        chatsEventChannel.send(ChatsEvent.NavigateToAddChatFragment)
+    }
+
+    suspend fun getMessageByID(lastMessageID: String) =
+        repository.getMessageByID(lastMessageID)
+
+
+
+    fun onChatClicked(chat: Chat) = viewModelScope.launch {
+        chatsEventChannel.send(ChatsEvent.NavigateToMessagingScreen(chat))
+    }
+
+    fun subscribeToChatUpdates(currentUserID: String) {
         viewModelScope.launch {
-            chatsCollectionRef.whereArrayContains("userIDs", userID)
+            firebaseRepository.chatsCollectionReference.whereArrayContains("userIDs", currentUserID)
                 .addSnapshotListener { value, error ->
                     error?.let {
-                        Log.d(TAG, "${error.message}")
+                        Log.d(TAG, error.message.toString())
                         return@addSnapshotListener
                     }
 
                     value?.let {
                         for (document in it) {
-
                             val firebaseChat = document.toObject(FirebaseChat::class.java)
                             if (firebaseChat.chatID != "chatID") {
                                 val chat =
@@ -54,7 +103,6 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
                                         firebaseChat.lastMessageID
                                     )
                                 insertChat(chat)
-
                             }
                         }
                     }
@@ -62,47 +110,20 @@ class ChatsFragmentViewModel @ViewModelInject constructor(
         }
     }
 
-    fun insertChat(chat: Chat) = viewModelScope.launch {
+    fun insertChat(chat: Chat) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertChat(chat)
     }
 
-    fun subsribeToMessageUpdates(allChatIDs: List<String>) {
-        viewModelScope.launch {
-            for (chatID in allChatIDs) {
-                getMessageUpdates(chatID)
-            }
-        }
+    sealed class ChatsEvent {
+        data class NavigateToMessagingScreen(val chat: Chat) : ChatsEvent()
+        object NotLoggedIn : ChatsEvent()
+        object LoggedIn : ChatsEvent()
+        object NavigateToAddChatFragment : ChatsEvent()
     }
-
-    suspend fun getMessageUpdates(chatID: String) {
-        chatsCollectionRef.document(chatID).collection("messages")
-            .addSnapshotListener { value, error ->
-                error?.let {
-                    Log.d(TAG, "$it")
-                    return@addSnapshotListener
-                }
-
-                value?.let {
-                    for (document in value.documents) {
-                        val message = document.toObject(Message::class.java)!!
-                        if (message.messageid != "messageID") {
-                            insertMessage(message)
-                        }
-                    }
-                }
-            }
-    }
-
-    fun updateChatLastMessage(messageID: String, chatID: String) = viewModelScope.launch {
-        repository.updateChatLastMessage(messageID, chatID)
-    }
-
-
-    suspend fun getMessageByID(messageID: String) = repository.getMessageByID(messageID)
-
-    fun getAllMessages() = repository.getAllMessages()
-
-    suspend fun updateChat(chat: Chat) = repository.updateChat(chat)
-
-    suspend fun getChatByID(chatID: String) = repository.getChatByID(chatID)
 }
+
+data class ChatWithLastMessage(
+    val lastMessage: Message,
+    val chat: Chat
+)
+

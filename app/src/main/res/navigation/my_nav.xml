@@ -2,22 +2,119 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mz_nav"
+    android:id="@+id/my_nav"
     app:startDestination="@id/chatsFragment">
 
     <fragment
         android:id="@+id/chatsFragment"
         android:name="com.example.messagingapp.ui.chat.ChatsFragment"
         android:label="fragment_chats"
-        tools:layout="@layout/fragment_chats" />
+        tools:layout="@layout/fragment_chats" >
+        <action
+            android:id="@+id/action_chatsFragment_to_verifyNumberFragment"
+            app:destination="@id/verifyNumberFragment" />
+        <action
+            android:id="@+id/action_chatsFragment_to_messagingFragment"
+            app:destination="@id/messagingFragment" />
+        <action
+            android:id="@+id/action_chatsFragment_to_addChatFragment"
+            app:destination="@id/addChatFragment" />
+    </fragment>
     <fragment
         android:id="@+id/contactFragment"
         android:name="com.example.messagingapp.ui.contacts.ContactsFragment"
         android:label="fragment_contact"
-        tools:layout="@layout/fragment_contacts" />
+        tools:layout="@layout/fragment_contacts" >
+        <action
+            android:id="@+id/action_contactFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+    </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
         android:name="com.example.messagingapp.ui.profile.MyProfileFragment"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" />
+    <fragment
+        android:id="@+id/messagingFragment"
+        android:name="com.example.messagingapp.ui.messaging.MessagingFragment"
+        android:label="fragment_messaging"
+        tools:layout="@layout/fragment_messaging" >
+        <argument
+            android:name="chat"
+            app:argType="com.example.messagingapp.data.room.entities.Chat" />
+        <action
+            android:id="@+id/action_messagingFragment_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/enterOtpFragment"
+        android:name="com.example.messagingapp.ui.register.enterotp.EnterOtpFragment"
+        android:label="fragment_create_acc"
+        tools:layout="@layout/fragment_enter_otp" >
+        <action
+            android:id="@+id/action_enterOtpFragment_to_createAccFragment"
+            app:destination="@id/createAccFragment" />
+        <action
+            android:id="@+id/action_enterOtpFragment_to_verifyNumberFragment"
+            app:destination="@id/verifyNumberFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/verifyNumberFragment"
+        android:name="com.example.messagingapp.ui.register.verifynumber.VerifyNumberFragment"
+        android:label="fragment_verify_number"
+        tools:layout="@layout/fragment_verify_number" >
+        <action
+            android:id="@+id/action_verifyNumberFragment_to_enterOtpFragment"
+            app:destination="@id/enterOtpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createAccFragment"
+        android:name="com.example.messagingapp.ui.register.createacc.CreateAccFragment"
+        android:label="fragment_create_acc"
+        tools:layout="@layout/fragment_create_acc" >
+        <argument
+            android:name="phone"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_createAccFragment_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.messagingapp.ui.userprofile.UserProfileFragment"
+        android:label="fragment_user_profile"
+        tools:layout="@layout/fragment_user_profile" >
+        <argument
+            android:name="user"
+            app:argType="com.example.messagingapp.data.room.entities.User" />
+    </fragment>
+    <fragment
+        android:id="@+id/addChatFragment"
+        android:name="com.example.messagingapp.ui.addChat.AddChatFragment"
+        android:label="fragment_add_chat"
+        tools:layout="@layout/fragment_add_chat" >
+        <action
+            android:id="@+id/action_addChatFragment_to_createChatFragment"
+            app:destination="@id/createChatFragment" />
+        <argument
+            android:name="usersToCreateChat"
+            app:argType="com.example.messagingapp.data.room.entities.User[]"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <fragment
+        android:id="@+id/createChatFragment"
+        android:name="com.example.messagingapp.ui.createchat.CreateChatFragment"
+        android:label="fragment_create_chat"
+        tools:layout="@layout/fragment_create_chat" >
+        <action
+            android:id="@+id/action_createChatFragment_to_messagingFragment"
+            app:destination="@id/messagingFragment" />
+        <argument
+            android:name="usersToCreateChat"
+            app:argType="com.example.messagingapp.data.room.entities.User[]" />
+        <action
+            android:id="@+id/action_createChatFragment_to_addChatFragment"
+            app:destination="@id/addChatFragment" />
+    </fragment>
 </navigation>

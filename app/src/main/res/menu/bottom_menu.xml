@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/myProfileFragment"
         android:icon="@drawable/ic_acc"
-        android:title="MyProfile" />
+        android:title="MyProfile"
+        app:showAsAction="always"/>
     <item
         android:id="@+id/chatsFragment"
         android:icon="@drawable/ic_chats"
-        android:title="Chats" />
+        android:title="Chats"
+        app:showAsAction="always"/>
     <item
         android:id="@+id/contactFragment"
         android:icon="@drawable/ic_contacts"
-        android:title="Contacts" />
+        android:title="Contacts"
+        app:showAsAction="always"/>
 </menu>

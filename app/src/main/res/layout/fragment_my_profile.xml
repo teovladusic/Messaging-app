@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,8 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white">
+        android:layout_height="match_parent">
 
 
         <androidx.cardview.widget.CardView
@@ -33,23 +32,17 @@
                 app:cardCornerRadius="250dp">
 
                 <ImageView
+                    android:id="@+id/img_profile_picture"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/default_user" />
+                    android:layout_weight="1"
+                    android:src="@drawable/default_user"/>
+
             </androidx.cardview.widget.CardView>
 
 
         </androidx.cardview.widget.CardView>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_edit"
-            app:layout_anchor="@id/cardView"
-            app:layout_anchorGravity="bottom|end"
-            app:layout_constraintBottom_toBottomOf="@+id/cardView"
-            app:layout_constraintStart_toEndOf="@+id/cardView" />
 
         <TextView
             android:id="@+id/tvNickname"
@@ -57,8 +50,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:text="nickname"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@+id/cardView"
             app:layout_constraintStart_toStartOf="@+id/cardView"
             app:layout_constraintTop_toBottomOf="@+id/cardView" />
@@ -77,14 +71,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/materialCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="10dp"
             android:layout_marginStart="40dp"
+            android:layout_marginTop="40dp"
             android:layout_marginEnd="40dp"
+            android:elevation="15dp"
+            app:cardCornerRadius="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvNickname">
@@ -101,65 +95,72 @@
                     android:layout_marginTop="30dp"
                     android:fontFamily="@font/allerta"
                     android:text="Nickname"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/tvNick"
+                <EditText
+                    android:id="@+id/et_nick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/text_nickname"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="20dp"
+                    android:background="@drawable/my_profile_et"
                     android:fontFamily="@font/allerta"
-                    android:text="Nickname"
-                    android:textColor="@color/grey"
+                    android:maxLength="15"
+                    android:minWidth="70dp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
+
 
                 <View
                     android:id="@+id/horizontal_view0"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/grey"
                     android:layout_below="@id/text_nickname"
+                    android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp" />
+                    android:background="@color/grey" />
 
 
                 <TextView
                     android:id="@+id/text_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/horizontal_view0"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="30dp"
-                    android:layout_below="@id/horizontal_view0"
                     android:fontFamily="@font/allerta"
                     android:text="First Name"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/tvName"
+                <EditText
+                    android:id="@+id/et_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/text_name"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="20dp"
+                    android:background="@drawable/my_profile_et"
                     android:fontFamily="@font/allerta"
-                    android:text="name"
-                    android:textColor="@color/grey"
+                    android:maxLength="15"
+                    android:minWidth="70dp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
                 <View
                     android:id="@+id/horizontal_view1"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/grey"
                     android:layout_below="@id/text_name"
+                    android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp" />
+                    android:background="@color/grey" />
 
 
                 <TextView
@@ -171,30 +172,33 @@
                     android:layout_marginTop="30dp"
                     android:fontFamily="@font/allerta"
                     android:text="Last Name"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/tvLastName"
+                <EditText
+                    android:id="@+id/et_lastname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/text_lastName"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="20dp"
+                    android:background="@drawable/my_profile_et"
                     android:fontFamily="@font/allerta"
-                    android:text="Last name"
-                    android:textColor="@color/grey"
+                    android:maxLength="15"
+                    android:minWidth="70dp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
                 <View
                     android:id="@+id/horizontal_view2"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/grey"
                     android:layout_below="@id/text_lastName"
+                    android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp" />
+                    android:background="@color/grey" />
 
 
                 <TextView
@@ -206,36 +210,46 @@
                     android:layout_marginTop="30dp"
                     android:fontFamily="@font/allerta"
                     android:text="Phone Number"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/tvNumber"
+                    android:id="@+id/tv_phone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/text_number"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="20dp"
+                    android:background="@drawable/my_profile_et"
                     android:fontFamily="@font/allerta"
-                    android:text="Phone Number"
-                    android:textColor="@color/grey"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/grey"
                     android:layout_below="@id/text_number"
+                    android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginBottom="30dp" />
-
+                    android:layout_marginBottom="30dp"
+                    android:background="@color/grey" />
 
             </RelativeLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/img_check_nick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/ic_check_blue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/materialCardView"
+            app:layout_constraintTop_toTopOf="@+id/materialCardView" />
 
-</FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+

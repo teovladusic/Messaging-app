@@ -1,31 +1,34 @@
 package com.example.messagingapp.ui
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.messagingapp.R
+import com.example.messagingapp.data.PreferencesManager
+import com.example.messagingapp.data.UserPreferences
 import com.example.messagingapp.databinding.ActivityChatBinding
-import com.example.messagingapp.ui.addChat.AddChatActivity
-import com.example.messagingapp.ui.chat.ChatViewModel
-import com.example.messagingapp.ui.register.LoginActivity
-import com.google.android.material.snackbar.Snackbar
+import com.example.messagingapp.util.exhaustive
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
 
 
-    val CREATE_CHAT_CODE = 2
     lateinit var binding: ActivityChatBinding
     private val TAG = "ChatActivity"
-    private val chatViewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by viewModels()
+    lateinit var navDestination: NavDestination
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,41 +38,31 @@ class ChatActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
         binding.bottomNavigationView.setupWithNavController(navController)
 
-        binding.btnAddChat.setOnClickListener {
-            val intent = Intent(this, AddChatActivity::class.java)
-            startActivityForResult(intent, CREATE_CHAT_CODE)
-        }
-    }
+       viewModel.allChatIDs.observe(this) {
+           viewModel.subsribeToMessageUpdates(it)
+       }
 
-    override fun onResume() {
-        super.onResume()
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            navDestination = destination
+            when (destination.id) {
+                R.id.messagingFragment, R.id.verifyNumberFragment, R.id.enterOtpFragment,
+                R.id.createAccFragment -> {
+                    binding.bottomNavigationView.visibility = View.GONE
+                }
 
-        val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-        val phoneNum = sharedPreferences.getString("phoneNum", "").toString()
-        val token = sharedPreferences.getString("token", "").toString()
-        val currentUserID = sharedPreferences.getString("currentUserID", "").toString()
-
-        if (phoneNum == "" || currentUserID == "" || token == "") {
-            sharedPreferences.edit().clear().apply()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-        } else {
-            CoroutineScope(Dispatchers.IO).launch {
-                val tokenInDB = chatViewModel.getCurrentUserToken(currentUserID)
-                if (token != tokenInDB) {
-                    chatViewModel.updateUserToken(token, currentUserID)
-                    chatViewModel.updateFirestoreUserField(currentUserID, "token", token)
+                else -> {
+                    binding.bottomNavigationView.visibility = View.VISIBLE
                 }
             }
         }
     }
 
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == CREATE_CHAT_CODE && resultCode == RESULT_CANCELED) {
-            Snackbar.make(binding.root, "Chat wasn't created.", Snackbar.LENGTH_SHORT).show()
+    override fun onBackPressed() {
+        when (navDestination.id) {
+            R.id.verifyNumberFragment, R.id.enterOtpFragment, R.id.createAccFragment -> {
+                finish()
+            }
+            else -> super.onBackPressed()
         }
     }
 }

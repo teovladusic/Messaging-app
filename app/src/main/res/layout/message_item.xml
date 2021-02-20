@@ -13,7 +13,8 @@
         android:elevation="10dp"
         app:cardCornerRadius="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -62,7 +63,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="15dp"
         android:elevation="10dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:cardCornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">

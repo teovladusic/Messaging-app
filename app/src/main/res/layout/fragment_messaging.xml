@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.messaging.MessagingFragment">
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/messaging_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/azure">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imgViewBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                android:id="@+id/tv_chat_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="20dp"
+                android:layout_toEndOf="@id/imgViewBack"
+                android:gravity="center_vertical"
+                android:text="Chat name"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/dark_background">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/etMessage"
+                android:background="@drawable/message_shape"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toStartOf="@id/send_message"
+                android:hint="Type something..."
+                android:textColorHint="@color/white"
+                android:paddingStart="18dp"
+                android:padding="7dp"/>
+
+           <ImageView
+               android:id="@+id/send_message"
+               android:layout_width="28dp"
+               android:layout_height="28dp"
+               android:layout_alignParentEnd="true"
+               android:src="@drawable/ic_send"
+               android:layout_centerVertical="true"
+               android:layout_marginEnd="15dp"/>
+
+        </RelativeLayout>
+
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rec_view_messages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottomNavView"
+        android:layout_below="@id/messaging_toolbar" />
+
+</RelativeLayout>

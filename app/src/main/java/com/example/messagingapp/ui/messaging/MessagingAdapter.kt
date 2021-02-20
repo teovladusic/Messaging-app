@@ -1,23 +1,26 @@
 package com.example.messagingapp.ui.messaging
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messagingapp.databinding.MessageItemBinding
-import com.example.messagingapp.db.room.entities.Message
-import com.example.messagingapp.db.room.entities.User
+import com.example.messagingapp.data.room.entities.Message
+import com.example.messagingapp.data.room.entities.User
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class MessagingAdapter() : RecyclerView.Adapter<MessagingAdapter.MessagingViewHolder>() {
+class MessagingAdapter :
+    ListAdapter<Message, MessagingAdapter.MessagingViewHolder>(DiffCallback()) {
 
     private val TAG = "MessagingAdapter"
 
     lateinit var context: Context
-    var messages = listOf<Message>()
+
+    var currentUserID = ""
 
     var users = listOf<User>()
 
@@ -29,41 +32,15 @@ class MessagingAdapter() : RecyclerView.Adapter<MessagingAdapter.MessagingViewHo
 
 
     override fun onBindViewHolder(holder: MessagingViewHolder, position: Int) {
-        val currentUserID = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-            .getString("currentUserID", "")!!
-        val message = messages[position]
-        var user = User()
+        val message = getItem(position)
 
-        if (users.isNotEmpty()) {
-            for (userToLoop in users) {
-                if (userToLoop.userID == message.userID) {
-                    user = userToLoop
-                }
+        for (userToLoop in users) {
+            if (userToLoop.userID == message.userID) {
+                holder.bind(userToLoop, message)
             }
-
-            when (currentUserID) {
-                user.userID -> {
-                    holder.binding.cardViewCurrent.isVisible = true
-                    holder.binding.cardView.isVisible = false
-
-                    holder.binding.tvCurrentNick.text = user.nickname
-                    holder.binding.tvCurrentText.text = message.text
-                    holder.binding.tvCurrentTime.text = formatTime(message.dateTime)
-                }
-
-                else -> {
-                    holder.binding.cardViewCurrent.isVisible = false
-                    holder.binding.cardView.isVisible = true
-
-                    holder.binding.tvNickname.text = user.nickname
-                    holder.binding.tvText.text = message.text
-                    holder.binding.tvTime.text = formatTime(message.dateTime)
-                }
-            }
-        } else {
-            Log.d(TAG, "emptyy je")
         }
     }
+
 
     fun formatTime(dateTime: String): String {
         //dateTime format -> 2021-01-22 14:04:45:923
@@ -77,9 +54,41 @@ class MessagingAdapter() : RecyclerView.Adapter<MessagingAdapter.MessagingViewHo
         }
     }
 
-    override fun getItemCount() = messages.size
-
     inner class MessagingViewHolder(
         val binding: MessageItemBinding
-    ) : RecyclerView.ViewHolder(binding.root)
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(user: User, message: Message) {
+            binding.apply {
+                when (currentUserID) {
+                    user.userID -> {
+                        cardViewCurrent.isVisible = true
+                        cardView.isVisible = false
+
+                        tvCurrentNick.text = user.nickname
+                        tvCurrentText.text = message.text
+                        tvCurrentTime.text = formatTime(message.dateTime)
+                    }
+
+                    else -> {
+                        cardViewCurrent.isVisible = false
+                        cardView.isVisible = true
+
+                        tvNickname.text = user.nickname
+                        tvText.text = message.text
+                        tvTime.text = formatTime(message.dateTime)
+                    }
+                }
+            }
+        }
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<Message>() {
+        override fun areItemsTheSame(oldItem: Message, newItem: Message) =
+            oldItem.messageid == newItem.messageid
+
+        override fun areContentsTheSame(oldItem: Message, newItem: Message) =
+            oldItem == newItem
+    }
+
 }

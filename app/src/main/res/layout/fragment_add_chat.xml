@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.addChat.AddChatFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:elevation="10dp"
+        android:background="@color/azure">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/img_view_back"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                android:id="@+id/tv_title_add_chat"
+                style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:layout_toEndOf="@id/img_view_back"
+                android:text="Create Chat"/>
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_view_contacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layoutDirection="rtl" />
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rec_view_users_to_create_chat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar" />
+
+    <View
+        android:id="@+id/horizontal_view"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/rec_view_users_to_create_chat"
+        android:layout_marginTop="20dp"
+        android:background="@color/white" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rec_view_users"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/horizontal_view"
+        android:layout_marginTop="20dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_create_chat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="32dp"
+        android:src="@drawable/ic_arrow" />
+
+    <TextView
+        android:id="@+id/tv_no_contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="We didn't find any contacts..."
+        android:textSize="20dp"
+        android:visibility="invisible" />
+
+</RelativeLayout>

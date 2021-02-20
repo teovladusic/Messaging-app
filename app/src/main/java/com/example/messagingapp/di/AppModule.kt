@@ -2,8 +2,9 @@ package com.example.messagingapp.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.messagingapp.db.room.ChatDatabase
-import com.example.messagingapp.db.room.Repository
+import com.example.messagingapp.data.firebase.FirebaseRepository
+import com.example.messagingapp.data.room.ChatDatabase
+import com.example.messagingapp.data.room.Repository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,5 +29,9 @@ object AppModule {
     @Singleton
     @Provides
     fun provideRepository(db: ChatDatabase) = Repository(db)
+
+    @Singleton
+    @Provides
+    fun provideFirebaseRepository() = FirebaseRepository()
 
 }

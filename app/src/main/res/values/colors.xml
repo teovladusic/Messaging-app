@@ -10,5 +10,7 @@
     <color name="grey">#656464</color>
     <color name="blue">#0892D0</color>
     <color name="azure">#007fff</color>
+    <color name="dark_background">#1212</color>
+
 
 </resources>

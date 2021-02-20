@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.messagingapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
 
     <application
         android:name=".di.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MessagingApp">
-        <activity android:name=".ui.messaging.MessagingActivity"></activity>
-        <activity android:name=".ui.profile.UserActivity" />
         <activity android:name=".ui.addChat.AddChatActivity" />
-        <activity android:name=".ui.register.CreateAccActivity" />
-        <activity android:name=".ui.register.LoginActivity" />
         <activity android:name=".ui.ChatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +29,7 @@
         </activity>
 
         <service
-            android:name=".db.firebase.sendmessages.FirebaseService"
+            android:name=".data.firebase.sendmessages.FirebaseService"
             android:exported="false"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
